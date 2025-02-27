@@ -13,6 +13,7 @@
         "packagesPath": "C:\\Users\\Welcome\\.nuget\\packages\\",
         "outputPath": "D:\\Work\\Projects\\ChartWebApp\\obj\\",
         "projectStyle": "PackageReference",
+        "UsingMicrosoftNETSdk": false,
         "configFilePaths": [
           "C:\\Users\\Welcome\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
