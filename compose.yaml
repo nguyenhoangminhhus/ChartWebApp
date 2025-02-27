@@ -1,0 +1,19 @@
+﻿services:
+  chartwebapp:
+    image: chartwebapp
+    build:
+      context: .
+      dockerfile: Dockerfile
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: chart_app
+      MYSQL_DATABASE: chart_app
+      MYSQL_USER: chart_app
+      MYSQL_PASSWORD: chart_app
+    ports:
+      - "3306:3306"
+    volumes:
+      - /mysql_data:/var/lib/mysql

@@ -1,0 +1,230 @@
+@model IEnumerable<ChartWebApp.Models.ChartData>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<style>
+    .chart-container {
+        position: relative;
+        margin: auto;
+        overflow-x: auto;
+    }
+
+    #lineChart2 {
+        height: 500px;
+        width: 2000px;
+    }
+</style>
+<script>
+    const decimation = {
+        enabled: true,
+        algorithm: 'lttb',
+        SAMPLES: 5000
+    };
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch("/Data/GetChartData")
+            .then(response => response.json())
+            .then(data => {
+                var ctx = document.getElementById("lineChart").getContext("2d");
+                new Chart(ctx, {
+                    type: "line",
+                    data: data,
+                    options: {
+                        // Turn off animations and data parsing for performance
+                        animation: false,
+                        responsive: true,
+                        plugins: {
+                            legend: {display: true},
+                            decimation: decimation
+                        },
+                        elements: {
+                            line: {
+                                borderWidth: 1
+                            },
+                            point: {
+                                pointBorderWidth: 1
+                            }
+                        }
+                    }
+                });
+            });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch("/Data/GetChartData2")
+            .then(response => response.json())
+            .then(data => {
+                var ctx = document.getElementById("lineChart2").getContext("2d");
+                new Chart(ctx, {
+                    type: "line",
+                    data: data,
+                    options: {
+                        // Turn off animations and data parsing for performance
+                        animation: false,
+                        responsive: false,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {display: true},
+                            decimation: decimation
+                        },
+                        elements: {
+                            line: {
+                                borderWidth: 1
+                            },
+                            point: {
+                                pointBorderWidth: 1
+                            }
+                        }
+                    }
+                });
+            });
+    });
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch("/Data/GetMinValue")
+            .then(response => response.json())
+            .then(data => {
+                var ele = document.getElementById("minValue");
+                ele.innerText = data.marketPrice + "(" + data.dateTime + ")";
+                console.log("GetMinValue", data);
+            });
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch("/Data/GetMaxValue")
+            .then(response => response.json())
+            .then(data => {
+                var ele = document.getElementById("maxValue");
+                ele.innerText = data.marketPrice + "(" + data.dateTime + ")";
+                console.log("GetMaxValue", data);
+            });
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch("/Data/GetAverageValue")
+            .then(response => response.json())
+            .then(data => {
+                var ele = document.getElementById("averageValue");
+                ele.innerText = data;
+                console.log("GetAverageValue", data);
+            });
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch("/Data/GetMostExpensiveHour")
+            .then(response => response.json())
+            .then(data => {
+                var ele = document.getElementById("expensiveHour");
+                ele.innerText = data.marketPrice + "(" + data.start + " - " + data.end + ")";
+                console.log("GetMostExpensiveHour", data);
+            });
+    });
+
+    function showHideLineChart(ele) {
+        var chartId = ele.getAttribute("chartId");
+        console.log("chartId", chartId);
+        var element = document.getElementById(chartId);
+        if (isElementHidden(element)) {
+            element.style.display = 'block';
+        } else {
+            element.style.display = 'none';
+        }
+    }
+
+    function isElementHidden(element) {
+        return element.style.display === 'none';
+    }
+</script>
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+
+</p>
+<form asp-controller="Data" asp-action="ImportCsv" enctype="multipart/form-data" method="post">
+    <input type="file" name="file"/>
+    <button type="submit">Upload</button>
+</form>
+<form method="post">
+    <p>From Date: 
+        <input type="datetime-local" name="DateFrom"/></p>
+    <p>To Date: 
+        <input type="datetime-local" name="DateTo"/></p>
+    <button type="submit">Search</button>
+</form>
+<h2>MarketPrice Graph</h2>
+<div><input type="button" id="lineChartBtn" chartId="lineChart" value="Show/Hide Chart"
+            onclick="showHideLineChart(this)"></input></div>
+<canvas id="lineChart" style="display: none"></canvas>
+<div><input type="button" id="lineChart2Btn" chartId="lineChartContainer" value="Show/Hide Chart"
+            onclick="showHideLineChart(this)"></input></div>
+<div class="chart-container" id="lineChartContainer" style="display: none">
+    <canvas id="lineChart2" ></canvas>
+</div>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            <a asp-action="Index"
+               asp-route-sortOrder="@ViewData["DateSortParm"]">@Html.DisplayNameFor(model => model.DateTime)</a>
+        </th>
+        <th>
+            <a asp-action="Index"
+               asp-route-sortOrder="@ViewData["PriceSortParm"]">@Html.DisplayNameFor(model => model.MarketPrice)</a>
+        </th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.DateTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MarketPrice)
+            </td>
+            @* <td> *@
+            @*     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> | *@
+            @*     <a asp-action="Details" asp-route-id="@item.Id">Details</a> | *@
+            @*     <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> *@
+            @* </td> *@
+        </tr>
+    }
+    </tbody>
+</table>
+<table class="table">
+    <tr>
+        <td>
+            Minimum Value:
+        </td>
+        <td>
+            <p id="minValue"></p>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Maximum Value:
+        </td>
+        <td>
+            <p id="maxValue"></p>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Average Value:
+        </td>
+        <td>
+            <p id="averageValue"></p>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Most expensive hour window:
+        </td>
+        <td>
+            <p id="expensiveHour"></p>
+        </td>
+    </tr>
+
+</table>
